@@ -17,6 +17,14 @@ CONTAINER_NAME="archangel-dev"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
+# PX4-Autopilot is expected as a sibling directory to this repo, e.g.:
+#   ~/dev/Archangel/        <- REPO_ROOT
+#   ~/dev/PX4-Autopilot/    <- PX4_ROOT
+# It's a large, independently-versioned external codebase (built from
+# source, not installed as a package), so it lives outside this repo's
+# git history and is mounted in rather than vendored - see docs/host_setup.md.
+PX4_ROOT="$(dirname "$REPO_ROOT")/PX4-Autopilot"
+
 # Always (re)build. Docker's own layer cache makes a no-op rebuild fast —
 # only layers whose instructions or context actually changed get re-run —
 # so this is cheap in the common case, and it avoids silently running a
@@ -41,9 +49,11 @@ fi
 docker run -it --rm \
     --name "$CONTAINER_NAME" \
     "${GPU_FLAGS[@]}" \
+    --network host \
     -e DISPLAY="$DISPLAY" \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
     -v "$REPO_ROOT":/home/"$(whoami)"/ws/src \
+    -v "$PX4_ROOT":/home/"$(whoami)"/PX4-Autopilot \
     -w /home/"$(whoami)"/ws \
     "$IMAGE_NAME" \
     /bin/bash
