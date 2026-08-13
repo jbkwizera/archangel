@@ -36,6 +36,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     sudo \
     && rm -rf /var/lib/apt/lists/*
 
+# --- Gazebo Harmonic (the Gazebo release paired with ROS 2 Jazzy under
+#     REP-2000 + the ROS 2 <-> Gazebo bridge meta-package ---
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ros-jazzy-ros-gz \
+    && rm -rf /var/lib/apt/lists/*
+
+
 # --- Non-root user matching host UID/GID (passed as build args) ---
 ARG USERNAME=devuser
 ARG USER_UID=1000
