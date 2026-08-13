@@ -17,18 +17,18 @@ CONTAINER_NAME="archangel-dev"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
-# Build the image if it doesn't exist yet, passing host UID/GID so files
-# created in the container are owned by the host user, not root.
-if ! docker image inspect "$IMAGE_NAME" > /dev/null 2>&1; then
-    echo "Image '$IMAGE_NAME' not found locally — building it now..."
-    docker build \
-        --build-arg USER_UID="$(id -u)" \
-        --build-arg USER_GID="$(id -g)" \
-        --build-arg USERNAME="$(whoami)" \
-        -t "$IMAGE_NAME" \
-        -f "$SCRIPT_DIR/Dockerfile" \
-        "$SCRIPT_DIR"
-fi
+# Always (re)build. Docker's own layer cache makes a no-op rebuild fast —
+# only layers whose instructions or context actually changed get re-run —
+# so this is cheap in the common case, and it avoids silently running a
+# stale image after the Dockerfile has been edited (bit us once already:
+# gz wasn't found because a prior image was reused instead of rebuilt).
+docker build \
+    --build-arg USER_UID="$(id -u)" \
+    --build-arg USER_GID="$(id -g)" \
+    --build-arg USERNAME="$(whoami)" \
+    -t "$IMAGE_NAME" \
+    -f "$SCRIPT_DIR/Dockerfile" \
+    "$SCRIPT_DIR"
 
 # Allow the container to draw on the host's X server.
 xhost +local:docker > /dev/null 2>&1 || true
