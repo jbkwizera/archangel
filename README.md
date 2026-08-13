@@ -1,4 +1,4 @@
-# Modular Robot
+# Archangel
 
 A heterogeneous multi-robot system for anti-poaching and wildlife conservation
 monitoring: a mobile ground station that deploys cooperating aerial drones,
