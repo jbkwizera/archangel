@@ -1,0 +1,48 @@
+# --- ROS 2 / colcon ---
+build/
+install/
+log/
+.colcon/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+.venv/
+venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# --- C++ ---
+*.o
+*.obj
+*.so
+*.a
+*.out
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# --- Docker ---
+*.log
+docker/.env
+
+# --- PX4 / Gazebo (large or generated, not project source) ---
+external/PX4-Autopilot/build/
+*.gzmodel/
+*.gzstate
+
+# --- Editors / IDEs ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# --- OS cruft ---
+.DS_Store
+Thumbs.db
