@@ -28,6 +28,7 @@ jobs:
       - name: Run flake8 (Python linting)
         run: |
           docker run --rm \
+            --user root \
             -v "${{ github.workspace }}":/home/ci/ws/src \
             -w /home/ci/ws/src \
             archangel-dev:ci \
@@ -36,6 +37,7 @@ jobs:
       - name: colcon build (smoke test)
         run: |
           docker run --rm \
+            --user root \
             -v "${{ github.workspace }}":/home/ci/ws/src \
             -w /home/ci/ws/src/ros2_ws \
             archangel-dev:ci \

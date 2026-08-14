@@ -1,3 +1,4 @@
+"""Setuptools configuration for the coordination package."""
 from setuptools import find_packages, setup
 
 package_name = 'coordination'
@@ -15,7 +16,7 @@ setup(
     zip_safe=True,
     maintainer='jbkwizera',
     maintainer_email='jeanbaptistekwi@gmail.com',
-    description='Multi-drone coordination logic (centralized in phase one, decentralized later).',
+    description='Multi-drone coordination logic for the Archangel project.',
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={

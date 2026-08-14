@@ -1,3 +1,4 @@
+"""Setuptools configuration for the sim_assets package."""
 from setuptools import find_packages, setup
 
 package_name = 'sim_assets'
@@ -15,7 +16,7 @@ setup(
     zip_safe=True,
     maintainer='jbkwizera',
     maintainer_email='jeanbaptistekwi@gmail.com',
-    description='Gazebo simulation worlds, models, and launch assets for the Archangel project.',
+    description='Gazebo simulation worlds, models, and launch assets.',
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={

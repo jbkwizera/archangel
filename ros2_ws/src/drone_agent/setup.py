@@ -1,3 +1,4 @@
+"""Setuptools configuration for the drone_agent package."""
 from setuptools import find_packages, setup
 
 package_name = 'drone_agent'
@@ -15,7 +16,7 @@ setup(
     zip_safe=True,
     maintainer='jbkwizera',
     maintainer_email='jeanbaptistekwi@gmail.com',
-    description='Per-drone agent node: onboard state, waypoint following, and station communication.',
+    description='Per-drone agent node: onboard state and waypoint following.',
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={

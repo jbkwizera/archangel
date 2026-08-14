@@ -1,3 +1,4 @@
+"""Setuptools configuration for the perception package."""
 from setuptools import find_packages, setup
 
 package_name = 'perception'
@@ -15,7 +16,7 @@ setup(
     zip_safe=True,
     maintainer='jbkwizera',
     maintainer_email='jeanbaptistekwi@gmail.com',
-    description='Perception nodes: sensor processing and detection for onboard or simulated sensing.',
+    description='Perception nodes: sensor processing and detection.',
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={

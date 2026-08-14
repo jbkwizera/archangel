@@ -1,3 +1,4 @@
+"""Setuptools configuration for the station package."""
 from setuptools import find_packages, setup
 
 package_name = 'station'
@@ -15,7 +16,7 @@ setup(
     zip_safe=True,
     maintainer='jbkwizera',
     maintainer_email='jeanbaptistekwi@gmail.com',
-    description='Ground station node: mission coordination and drone tasking for the Archangel project.',
+    description='Ground station node: mission coordination and drone tasking.',
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
