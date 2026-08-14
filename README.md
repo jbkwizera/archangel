@@ -1,5 +1,7 @@
 # Archangel
 
+[![CI](https://github.com/jbkwizera/archangel/actions/workflows/ci.yml/badge.svg)](https://github.com/jbkwizera/archangel/actions/workflows/ci.yml)
+
 A heterogeneous multi-robot system for anti-poaching and wildlife conservation
 monitoring: a mobile ground station that deploys cooperating aerial drones,
 built with decentralized, fault-tolerant coordination as a core requirement —

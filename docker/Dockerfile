@@ -37,23 +37,32 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # --- Gazebo Harmonic (the Gazebo release paired with ROS 2 Jazzy under
-#     REP-2000 + the ROS 2 <-> Gazebo bridge meta-package ---
+#     REP-2000) + the ROS 2 <-> Gazebo bridge meta-package ---
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-jazzy-ros-gz \
     && rm -rf /var/lib/apt/lists/*
 
 # --- Prerequisites for PX4's own dependency-setup script
-#     (Tools/setup/ubuntu.sh, which we run later against the PX4 source
-#     mounted in from a sibling host directory - not baked into this image,
+#     (Tools/setup/ubuntu.sh), which we run later against the PX4 source
+#     mounted in from a sibling host directory — not baked into this image,
 #     since PX4 is a large, independently-versioned external codebase we
 #     build from source rather than install as a package.
-#     ninja-build is included explicitly here because ubuntu.sh, did not
-#     reliably reinstall it in this environment, and PX4's CMake build
+#     ninja-build is included explicitly here because ubuntu.sh did not
+#     reliably install it in this environment, and PX4's CMake build
 #     (via `make px4_sitl gz_x500`) requires ninja as its generator. ---
 RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     unzip \
     ninja-build \
+    && rm -rf /var/lib/apt/lists/*
+
+# --- Python linting/testing tools. These match the test_depend entries
+#     declared in each ROS 2 package's package.xml (ament_flake8,
+#     python3-pytest) — declaring a dependency there does not install it,
+#     so it needs to happen explicitly here for both local dev and CI. ---
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    flake8 \
+    python3-pytest \
     && rm -rf /var/lib/apt/lists/*
 
 # --- Non-root user matching host UID/GID (passed as build args) ---
