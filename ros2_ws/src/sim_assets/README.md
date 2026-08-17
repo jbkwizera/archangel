@@ -18,3 +18,14 @@ A 200m × 200m flat park environment used for early simulation and testing.
 
 **Station coordinate:** `(0, 0, 0)` — the world origin. Also the drone's
 default spawn point. A ~30m radius around it is kept clear of trees/rocks.
+
+## Intruder
+
+Launch: `ros2 launch sim_assets park_with_intruder.launch.py`
+
+Spawns a red 1m cube named `intruder`, position set by `config/intruder.yaml`
+(default `x=30.0, y=-20.0, z=0.0`). Override per-run:
+
+```bash
+ros2 launch sim_assets park_with_intruder.launch.py intruder_x:=50.0 intruder_y:=10.0
+```
