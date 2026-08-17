@@ -75,5 +75,70 @@
       </link>
     </model>
 
+    <!-- Visual obstacles: Oak/Pine trees from OpenRobotics' Fuel library.
+         URIs verified against PX4's own bundled forest.sdf world, so
+         they're known-compatible with this Gazebo Harmonic / PX4 pairing.
+         Spread across the terrain in a rough ring, leaving roughly a 30m
+         clear radius around the origin for the station/drone spawn point. -->
+    <include>
+      <uri>https://fuel.ignitionrobotics.org/1.0/OpenRobotics/models/Oak Tree</uri>
+      <name>oak_tree_1</name>
+      <pose>40 40 0 0 0 0</pose>
+    </include>
+    <include>
+      <uri>https://fuel.ignitionrobotics.org/1.0/OpenRobotics/models/Pine Tree</uri>
+      <name>pine_tree_1</name>
+      <pose>-40 40 0 0 0 0</pose>
+    </include>
+    <include>
+      <uri>https://fuel.ignitionrobotics.org/1.0/OpenRobotics/models/Oak Tree</uri>
+      <name>oak_tree_2</name>
+      <pose>-40 -40 0 0 0 0</pose>
+    </include>
+    <include>
+      <uri>https://fuel.ignitionrobotics.org/1.0/OpenRobotics/models/Pine Tree</uri>
+      <name>pine_tree_2</name>
+      <pose>40 -40 0 0 0 0</pose>
+    </include>
+    <include>
+      <uri>https://fuel.ignitionrobotics.org/1.0/OpenRobotics/models/Oak Tree</uri>
+      <name>oak_tree_3</name>
+      <pose>60 0 0 0 0 0</pose>
+    </include>
+    <include>
+      <uri>https://fuel.ignitionrobotics.org/1.0/OpenRobotics/models/Pine Tree</uri>
+      <name>pine_tree_3</name>
+      <pose>-60 0 0 0 0 0</pose>
+    </include>
+    <include>
+      <uri>https://fuel.ignitionrobotics.org/1.0/OpenRobotics/models/Oak Tree</uri>
+      <name>oak_tree_4</name>
+      <pose>0 60 0 0 0 0</pose>
+    </include>
+    <include>
+      <uri>https://fuel.ignitionrobotics.org/1.0/OpenRobotics/models/Pine Tree</uri>
+      <name>pine_tree_4</name>
+      <pose>0 -60 0 0 0 0</pose>
+    </include>
+    <include>
+      <uri>https://fuel.ignitionrobotics.org/1.0/OpenRobotics/models/Oak Tree</uri>
+      <name>oak_tree_5</name>
+      <pose>70 70 0 0 0 0</pose>
+    </include>
+    <include>
+      <uri>https://fuel.ignitionrobotics.org/1.0/OpenRobotics/models/Pine Tree</uri>
+      <name>pine_tree_5</name>
+      <pose>-70 -70 0 0 0 0</pose>
+    </include>
+    <include>
+      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Falling Rock 1</uri>
+      <name>falling_rock_1_1</name>
+      <pose>-80 50 0 0 0 0</pose>
+    </include>
+    <include>
+      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Falling Rock 1</uri>
+      <name>falling_rock_1_2</name>
+      <pose>90 -90 0 0 0 0</pose>
+    </include>
   </world>
 </sdf>
