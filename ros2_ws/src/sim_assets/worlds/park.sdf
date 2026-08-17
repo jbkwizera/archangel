@@ -75,11 +75,7 @@
       </link>
     </model>
 
-    <!-- Visual obstacles: Oak/Pine trees from OpenRobotics' Fuel library.
-         URIs verified against PX4's own bundled forest.sdf world, so
-         they're known-compatible with this Gazebo Harmonic / PX4 pairing.
-         Spread across the terrain in a rough ring, leaving roughly a 30m
-         clear radius around the origin for the station/drone spawn point. -->
+    <!-- Tree obstacles (Oak/Pine), Fuel library -->
     <include>
       <uri>https://fuel.ignitionrobotics.org/1.0/OpenRobotics/models/Oak Tree</uri>
       <name>oak_tree_1</name>
@@ -140,5 +136,28 @@
       <name>falling_rock_1_2</name>
       <pose>90 -90 0 0 0 0</pose>
     </include>
+
+    <!-- Station marker: fixed ground station location and drone spawn point.
+         No collision geometry, so landings hit the ground plane, not the pad edge. -->
+    <model name="station_marker">
+      <static>true</static>
+      <pose>0 0 0.05 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>4 4 0.1</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1.0 0.45 0.0 1</ambient>
+            <diffuse>1.0 0.45 0.0 1</diffuse>
+            <specular>0.5 0.3 0.0 1</specular>
+            <emissive>0.3 0.1 0.0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+
   </world>
 </sdf>
