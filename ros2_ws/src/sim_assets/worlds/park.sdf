@@ -2,29 +2,23 @@
 <sdf version="1.9">
   <world name="park">
 
-    <!-- Physics: default Gazebo Harmonic step settings, explicit for clarity -->
-    <physics name="default_physics" type="ode">
+    <!-- Physics and environment blocks matched to PX4's bundled worlds so
+         SITL sensors (IMU, baro, compass, GPS) receive valid data. -->
+    <physics type="ode">
       <max_step_size>0.004</max_step_size>
       <real_time_factor>1.0</real_time_factor>
+      <real_time_update_rate>250</real_time_update_rate>
     </physics>
+    <gravity>0 0 -9.8</gravity>
+    <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
+    <atmosphere type="adiabatic"/>
 
-    <!-- Required system plugins for a functional Gazebo Harmonic world -->
-    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics" />
-    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands" />
-    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster" />
-    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
-      <render_engine>ogre2</render_engine>
-    </plugin>
-
-    <!-- Sky: gives the world a visible horizon/atmosphere rather than a void -->
     <scene>
-      <sky></sky>
       <ambient>0.6 0.6 0.6 1</ambient>
       <background>0.7 0.85 0.95 1</background>
       <shadows>true</shadows>
     </scene>
 
-    <!-- Sun: directional light source, standard Gazebo default orientation -->
     <light type="directional" name="sun">
       <cast_shadows>true</cast_shadows>
       <pose>0 0 10 0 0 0</pose>
@@ -39,7 +33,7 @@
       <direction>-0.5 0.1 -0.9</direction>
     </light>
 
-    <!-- Flat terrain plane: 200m x 200m, matching the acceptance criteria minimum -->
+    <!-- Flat terrain plane, 200m x 200m -->
     <model name="ground_plane">
       <static>true</static>
       <link name="link">
@@ -158,6 +152,14 @@
         </visual>
       </link>
     </model>
+
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <world_frame_orientation>ENU</world_frame_orientation>
+      <latitude_deg>47.397971057728974</latitude_deg>
+      <longitude_deg>8.546163739800146</longitude_deg>
+      <elevation>0</elevation>
+    </spherical_coordinates>
 
   </world>
 </sdf>

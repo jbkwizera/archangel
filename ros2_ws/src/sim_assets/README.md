@@ -26,6 +26,19 @@ Launch: `ros2 launch sim_assets park_with_intruder.launch.py`
 Spawns a red 1m cube named `intruder`, position set by `config/intruder.yaml`
 (default `x=30.0, y=-20.0, z=0.0`). Override per-run:
 
+## Flying PX4 in the park world
+
+PX4 loads worlds by name from `PX4-Autopilot/Tools/simulation/gz/worlds/`.
+Symlink `park.sdf` there once (repo stays the source of truth):
+
 ```bash
-ros2 launch sim_assets park_with_intruder.launch.py intruder_x:=50.0 intruder_y:=10.0
+ln -sf ~/ws/src/ros2_ws/src/sim_assets/worlds/park.sdf \
+  ~/PX4-Autopilot/Tools/simulation/gz/worlds/park.sdf
 ```
+
+Then launch PX4 SITL in it:
+
+```bash
+PX4_GZ_WORLD=park make px4_sitl gz_x500
+```
+

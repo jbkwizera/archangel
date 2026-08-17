@@ -10,6 +10,20 @@ import yaml
 
 
 def generate_launch_description():
+    """Build the launch description for the park simulation with an intruder.
+
+    Starts Gazebo with the ``park.sdf`` world and spawns a static-free box
+    model named ``intruder`` at a configurable pose. The spawn pose defaults
+    to the values in ``config/intruder.yaml`` and can be overridden at launch
+    time via the ``intruder_x``, ``intruder_y``, and ``intruder_z`` launch
+    arguments, e.g.::
+
+        ros2 launch sim_assets park_with_intruder.launch.py intruder_x:=5.0
+
+    Returns:
+        launch.LaunchDescription: The launch description declaring the pose
+        arguments, the Gazebo process, and the intruder spawn node.
+    """
     pkg_share = get_package_share_directory('sim_assets')
     world_path = os.path.join(pkg_share, 'worlds', 'park.sdf')
     config_path = os.path.join(pkg_share, 'config', 'intruder.yaml')
