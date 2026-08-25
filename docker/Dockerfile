@@ -65,6 +65,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pytest \
     && rm -rf /var/lib/apt/lists/*
 
+# --- Micro-XRCE-DDS-Agent: the ROS 2-side half of PX4's telemetry bridge.
+#     PX4's in-sim uxrce_dds_client connects to this agent over UDP (port
+#     8888) to publish /fmu/out/* topics into ROS 2. Built from source at the
+#     PX4-recommended v2.4.3 tag (there is no ros-jazzy apt package). ---
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    cmake \
+    g++ \
+    && git clone -b v2.4.3 --depth 1 https://github.com/eProsima/Micro-XRCE-DDS-Agent.git /tmp/uxrce-agent \
+    && cmake -S /tmp/uxrce-agent -B /tmp/uxrce-agent/build \
+    && cmake --build /tmp/uxrce-agent/build -j "$(nproc)" \
+    && cmake --install /tmp/uxrce-agent/build \
+    && ldconfig \
+    && rm -rf /tmp/uxrce-agent /var/lib/apt/lists/*
+
 # --- Non-root user matching host UID/GID (passed as build args) ---
 ARG USERNAME=devuser
 ARG USER_UID=1000
