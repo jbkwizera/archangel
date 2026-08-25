@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       # Build the same Ubuntu 24.04 + ROS 2 Jazzy image used for local
       # development (docker/Dockerfile), so CI matches the dev container

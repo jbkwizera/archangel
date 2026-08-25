@@ -182,6 +182,29 @@ This builds PX4 for the `gz_x500` quadcopter target and launches Gazebo with
 PX4 SITL attached in one command. On success, PX4 reaches a `pxh>` shell
 prompt and a Gazebo window opens showing the x500 quadcopter.
 
+### px4_msgs (ROS 2 message definitions)
+
+`px4_msgs` provides the ROS 2 message types PX4 publishes over the DDS bridge
+(e.g. `VehicleLocalPosition`, `VehicleStatus`). It lives as a pinned git
+submodule at `ros2_ws/src/px4_msgs`, so a fresh clone must pull it:
+
+```bash
+# When cloning the repo:
+git clone --recurse-submodules <repo-url>
+
+# Or, if already cloned without submodules:
+git submodule update --init --recursive
+```
+
+Then build it once inside the container. It's a large package (hundreds of
+message types) and takes several minutes on the first build; colcon caches it
+afterwards, so day-to-day builds of the project's own packages skip it:
+
+```bash
+cd ~/ws/src/ros2_ws
+colcon build --packages-select px4_msgs
+```
+
 ### QGroundControl (host)
 
 QGroundControl runs on the **host**, not the container — it represents the
@@ -252,6 +275,7 @@ All setup steps verified successfully:
 - [x] X11 passthrough verified (`xeyes` rendered on host display)
 - [x] PX4 Autopilot cloned as a pinned-commit sibling directory
 - [x] PX4 SITL builds and runs the `gz_x500` quadcopter in Gazebo
+- [x] px4_msgs pulled as a submodule and built
 - [x] QGroundControl installed on host and connects to PX4 SITL
 - [x] Quadcopter takeoff, hover, and land verified via PX4 shell + QGroundControl telemetry
 - [x] Setup documented (this file)
