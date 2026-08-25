@@ -1,11 +1,11 @@
 """drone_agent node: reports drone state from PX4 telemetry as DroneState."""
-from archangel_msgs.msg import DroneState
-
-from px4_msgs.msg import BatteryStatus, VehicleLocalPosition, VehicleStatus
 
 import rclpy
+from px4_msgs.msg import BatteryStatus, VehicleLocalPosition, VehicleStatus
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, HistoryPolicy, QoSProfile, ReliabilityPolicy
+
+from archangel_msgs.msg import DroneState
 
 # PX4 publishes /fmu/out/* topics with BEST_EFFORT reliability, VOLATILE
 # durability, and a small KEEP_LAST history. A subscriber whose QoS doesn't
@@ -24,38 +24,39 @@ class DroneAgent(Node):
 
     def __init__(self):
         """Set up parameters, PX4 subscriptions, publisher, and publish timer."""
-        super().__init__('drone_agent')
+        super().__init__("drone_agent")
 
         # drone_id parameter, default 0
-        self.declare_parameter('drone_id', 0)
-        self.drone_id = self.get_parameter('drone_id').value
+        self.declare_parameter("drone_id", 0)
+        self.drone_id = self.get_parameter("drone_id").value
 
         # Latest values cached on receipt; published on a fixed timer.
-        self._position = None    # (x, y, z) in ENU metres
-        self._battery = 0.0      # fraction 0.0-1.0
+        self._position = None  # (x, y, z) in ENU metres
+        self._battery = 0.0  # fraction 0.0-1.0
         self._status = DroneState.IDLE
 
         # PX4 subscriptions (BEST_EFFORT QoS required). Topic names use the
         # _v1 suffix that current PX4 firmware publishes.
         self.create_subscription(
-            VehicleLocalPosition, '/fmu/out/vehicle_local_position_v1',
-            self._on_position, PX4_QOS)
+            VehicleLocalPosition, "/fmu/out/vehicle_local_position_v1", self._on_position, PX4_QOS
+        )
         self.create_subscription(
-            VehicleStatus, '/fmu/out/vehicle_status_v1',
-            self._on_status, PX4_QOS)
+            VehicleStatus, "/fmu/out/vehicle_status_v1", self._on_status, PX4_QOS
+        )
         self.create_subscription(
-            BatteryStatus, '/fmu/out/battery_status_v1',
-            self._on_battery, PX4_QOS)
+            BatteryStatus,
+            "/fmu/out/battery_status_v1",
+            self._on_battery,
+            PX4_QOS,
+        )
 
         # Publisher on a drone-specific topic.
-        self._pub = self.create_publisher(
-            DroneState, f'/drone_{self.drone_id}/state', 10)
+        self._pub = self.create_publisher(DroneState, f"/drone_{self.drone_id}/state", 10)
 
         # 2 Hz publish timer (decoupled from PX4 message arrival rate).
         self.create_timer(0.5, self._publish_state)
 
-        self.get_logger().info(
-            f'drone_agent started for drone_id={self.drone_id}')
+        self.get_logger().info(f"drone_agent started for drone_id={self.drone_id}")
 
     def _on_position(self, msg: VehicleLocalPosition):
         # PX4 is NED (z down); flip z so our DroneState reads altitude-up (ENU).
@@ -83,8 +84,10 @@ class DroneAgent(Node):
             return DroneState.RETURNING
         if ns == VehicleStatus.NAVIGATION_STATE_AUTO_LOITER:
             return DroneState.LOITERING
-        if ns in (VehicleStatus.NAVIGATION_STATE_AUTO_MISSION,
-                  VehicleStatus.NAVIGATION_STATE_OFFBOARD):
+        if ns in (
+            VehicleStatus.NAVIGATION_STATE_AUTO_MISSION,
+            VehicleStatus.NAVIGATION_STATE_OFFBOARD,
+        ):
             return DroneState.EN_ROUTE
         # Armed but in some other mode (e.g. manual/position hold on ground).
         return DroneState.LOITERING
@@ -92,7 +95,7 @@ class DroneAgent(Node):
     def _publish_state(self):
         msg = DroneState()
         msg.header.stamp = self.get_clock().now().to_msg()
-        msg.header.frame_id = 'map'
+        msg.header.frame_id = "map"
         msg.drone_id = self.drone_id
         if self._position is not None:
             msg.position.x = float(self._position[0])
@@ -116,5 +119,5 @@ def main(args=None):
         rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

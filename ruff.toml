@@ -1,0 +1,21 @@
+# Ruff configuration for the Archangel project.
+# Ports the previous flake8 setup: line length 99, import ordering, docstrings.
+
+line-length = 99
+target-version = "py312"
+
+[lint]
+# E/W: pycodestyle, F: pyflakes (flake8 core)
+# I: import ordering (was flake8-import-order)
+# D: docstrings (was flake8-docstrings)
+select = ["E", "W", "F", "I", "D"]
+
+# Use the same docstring convention flake8-docstrings defaulted to.
+[lint.pydocstyle]
+convention = "pep257"
+
+[lint.isort]
+# Treat the project's own packages as first-party so they group separately.
+known-first-party = ["archangel_msgs", "drone_agent", "station",
+                     "coordination", "perception", "sim_assets"]
+

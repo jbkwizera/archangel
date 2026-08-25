@@ -56,13 +56,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ninja-build \
     && rm -rf /var/lib/apt/lists/*
 
-# --- Python linting/testing tools. These match the test_depend entries
-#     declared in each ROS 2 package's package.xml (ament_flake8,
-#     python3-pytest) — declaring a dependency there does not install it,
-#     so it needs to happen explicitly here for both local dev and CI. ---
+# --- Python linting/formatting + testing tools. ruff (lint + format) via
+#     pip so we get a current version; pytest via apt. ruff replaces the
+#     former flake8 + plugins with a single tool. ---
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    flake8 \
     python3-pytest \
+    python3-pip \
+    && pip install --no-cache-dir --break-system-packages ruff==0.6.9 \
     && rm -rf /var/lib/apt/lists/*
 
 # --- Micro-XRCE-DDS-Agent: the ROS 2-side half of PX4's telemetry bridge.

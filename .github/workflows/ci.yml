@@ -27,14 +27,14 @@ jobs:
             -f docker/Dockerfile \
             docker
 
-      - name: Run flake8 (Python linting)
+      - name: Run ruff (lint + format check)
         run: |
           docker run --rm \
             --user root \
             -v "${{ github.workspace }}":/home/ci/ws/src \
             -w /home/ci/ws/src \
             archangel-dev:ci \
-            bash -c "flake8 ros2_ws/src --max-line-length=99"
+            bash -c "ruff check ros2_ws/src && ruff format --check ros2_ws/src"
 
       - name: colcon build (smoke test)
         run: |
