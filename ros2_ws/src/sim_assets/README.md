@@ -21,10 +21,22 @@ default spawn point. A ~30m radius around it is kept clear of trees/rocks.
 
 ## Intruder
 
-Launch: `ros2 launch sim_assets park_with_intruder.launch.py`
+`config/intruder.yaml` sets the intruder's default position (`x=30.0,
+y=-20.0, z=0.5`). The intruder is spawned into the running world by the
+system launch in the `station` package, not by this one:
 
-Spawns a red 1m cube named `intruder`, position set by `config/intruder.yaml`
-(default `x=30.0, y=-20.0, z=0.0`). Override per-run:
+```bash
+ros2 launch station system.launch.py
+```
+
+Override per-run:
+
+```bash
+ros2 launch station system.launch.py intruder_x:=50.0 intruder_y:=10.0
+```
+
+The spawned model publishes its own pose on `/model/intruder/pose`, bridged
+into ROS 2 as `geometry_msgs/msg/PoseStamped`.
 
 ## Flying PX4 in the park world
 
