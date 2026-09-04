@@ -135,4 +135,14 @@ def generate_launch_description():
         parameters=[{"drone_id": drone_id}],
     )
 
-    return LaunchDescription([*args, agent, spawn_intruder, pose_bridge, drone_agent, station])
+    perception = Node(
+        package="perception",
+        executable="perception",
+        name="perception",
+        output="screen",
+        parameters=[{"drone_id": drone_id}],
+    )
+
+    return LaunchDescription(
+        [*args, agent, spawn_intruder, pose_bridge, drone_agent, station, perception]
+    )
