@@ -28,10 +28,14 @@ class Perception(Node):
         self.declare_parameter("drone_id", 0)
         self.declare_parameter("fov_half_angle_deg", 30.0)
         self.declare_parameter("rate_hz", 5.0)
+        self.declare_parameter("min_detection_interval_s", 2.0)
 
         self.drone_id = self.get_parameter("drone_id").value
         self.fov_half_angle = math.radians(self.get_parameter("fov_half_angle_deg").value)
         rate = self.get_parameter("rate_hz").value
+        self._min_interval = self.get_parameter("min_detection_interval_s").value
+
+        self._last_publish = None
 
         self._drone_pos = None  # (x, y, z) ENU meters
         self._intruder_pos = None  # (x, y, z) ENU meters
@@ -81,6 +85,17 @@ class Perception(Node):
 
         # Confidence falls off linearly from center (1.0) to the edge (0.0) of the FOV cone.
         confidence = 1.0 - (horizontal / fov_radius) if fov_radius > 0.0 else 0.0
+
+        # Throttle: cap the rate while a target stays in view, so continuous
+        # visibility doesn't flood downstream. Once the intruder can move and
+        # Detection carries more state, prefer emitting on meaningful change
+        # (position/appearance delta) rather than a fixed time cap.
+        now = self.get_clock().now()
+        if self._last_publish is not None:
+            elapsed = (now - self._last_publish).nanoseconds * 1e-9
+            if elapsed < self._min_interval:
+                return
+        self._last_publish = now
 
         det = Detection()
         det.header.stamp = self.get_clock().now().to_msg()
