@@ -5,7 +5,7 @@ from geometry_msgs.msg import Point
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, HistoryPolicy, QoSProfile, ReliabilityPolicy
 
-from archangel_msgs.msg import MissionCommand, Waypoint
+from archangel_msgs.msg import Detection, MissionCommand, Waypoint
 
 # Latching QoS so a drone_agent that subscribes after the mission is
 # published still receives the last mission (robust to launch order).
@@ -53,6 +53,13 @@ class Station(Node):
         self._timer = self.create_timer(2.0, self._publish_mission)
         self._sent = False
 
+        # Detections received from perception, kept in memory for later use
+        # (dedup, reporting, or triggering a response in the coordination phase).
+        self._detections = []
+        self.create_subscription(
+            Detection, f"/drone_{self.drone_id}/detections", self._on_detection, 10
+        )
+
         self.get_logger().info(f"Station started, with task drone_id={self.drone_id}")
 
     def _publish_mission(self):
@@ -78,6 +85,18 @@ class Station(Node):
         wp.position = Point(x=float(x), y=float(y), z=CRUISE_ALTITUDE)
         wp.hold_time = 0.0
         return wp
+
+    def _on_detection(self, msg: Detection):
+        """Record and log a detection reported by a drone."""
+        self._detections.append(msg)
+        p = msg.position
+        stamp = msg.header.stamp
+        self.get_logger().info(
+            f"Detection #{len(self._detections)} from drone_{msg.drone_id}: "
+            f"pos=({p.x:.1f}, {p.y:.1f}, {p.z:.1f}) "
+            f"confidence={msg.confidence:.2f} "
+            f"t={stamp.sec}.{stamp.nanosec:09d}"
+        )
 
 
 def main(args=None):
