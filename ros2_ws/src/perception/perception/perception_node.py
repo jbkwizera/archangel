@@ -8,6 +8,7 @@ and confidence falls off toward the edge of that cone.
 import math
 
 import rclpy
+from archangel_common.logging import event_str
 from geometry_msgs.msg import PoseStamped
 from rclpy.node import Node
 
@@ -55,8 +56,11 @@ class Perception(Node):
         self.create_timer(1.0 / rate, self._check)
 
         self.get_logger().info(
-            f"Perception started for drone_id={self.drone_id}, "
-            f"fov_half_angle={math.degrees(self.fov_half_angle):.0f} deg"
+            event_str(
+                "perception_start",
+                drone_id=self.drone_id,
+                fov_half_angle_deg=math.degrees(self.fov_half_angle),
+            )
         )
 
     def _on_state(self, msg: DroneState):
@@ -106,6 +110,17 @@ class Perception(Node):
         det.position.z = self._intruder_pos[2]
         det.confidence = float(confidence)
         self._pub.publish(det)
+
+        self.get_logger().info(
+            event_str(
+                "detection_published",
+                drone_id=self.drone_id,
+                x=det.position.x,
+                y=det.position.y,
+                z=det.position.z,
+                confidence=det.confidence,
+            )
+        )
 
 
 def main(args=None):

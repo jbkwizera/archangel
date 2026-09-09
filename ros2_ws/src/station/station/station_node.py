@@ -1,6 +1,7 @@
 """Station node: publishes a hardcoded lawnmower patrol mission to a drone."""
 
 import rclpy
+from archangel_common.logging import event_str
 from geometry_msgs.msg import Point
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, HistoryPolicy, QoSProfile, ReliabilityPolicy
@@ -60,7 +61,7 @@ class Station(Node):
             Detection, f"/drone_{self.drone_id}/detections", self._on_detection, 10
         )
 
-        self.get_logger().info(f"Station started, with task drone_id={self.drone_id}")
+        self.get_logger().info(event_str("station_start", drone_id=self.drone_id))
 
     def _publish_mission(self):
         """Publish a hardcoded lawnmower patrol mission to the target drone."""
@@ -76,7 +77,12 @@ class Station(Node):
         self._pub.publish(msg)
         self._sent = True
         self.get_logger().info(
-            f"Published patrol: {len(msg.waypoints)} waypoints to drone_{self.drone_id}"
+            event_str(
+                "mission_published",
+                drone_id=self.drone_id,
+                mission_id=msg.mission_id,
+                waypoints=len(msg.waypoints),
+            )
         )
 
     def _waypoint(self, x: float, y: float) -> Waypoint:
@@ -92,10 +98,16 @@ class Station(Node):
         p = msg.position
         stamp = msg.header.stamp
         self.get_logger().info(
-            f"Detection #{len(self._detections)} from drone_{msg.drone_id}: "
-            f"pos=({p.x:.1f}, {p.y:.1f}, {p.z:.1f}) "
-            f"confidence={msg.confidence:.2f} "
-            f"t={stamp.sec}.{stamp.nanosec:09d}"
+            event_str(
+                "detection",
+                seq=len(self._detections),
+                drone_id=msg.drone_id,
+                x=p.x,
+                y=p.y,
+                z=p.z,
+                confidence=msg.confidence,
+                stamp=f"{stamp.sec}.{stamp.nanosec:09d}",
+            )
         )
 
 

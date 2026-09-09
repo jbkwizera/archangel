@@ -3,6 +3,7 @@
 import math
 
 import rclpy
+from archangel_common.logging import event_str
 from px4_msgs.msg import (
     BatteryStatus,
     OffboardControlMode,
@@ -96,7 +97,7 @@ class DroneAgent(Node):
         self.create_timer(0.5, self._publish_state)
         self.create_timer(1.0 / CONTROL_RATE_HZ, self._control_loop)
 
-        self.get_logger().info(f"drone_agent started for drone_id={self.drone_id}")
+        self.get_logger().info(event_str("agent_start", drone_id=self.drone_id))
 
     # ------------------------------------------------------------------
     # Telemetry callbacks
@@ -120,7 +121,14 @@ class DroneAgent(Node):
         self._wp_index = 0
         self._offboard_ticks = 0
         self._phase = PHASE_ARM if self._waypoints else PHASE_IDLE
-        self.get_logger().info(f"mission {msg.mission_id}: {len(self._waypoints)} waypoints")
+        self.get_logger().info(
+            event_str(
+                "mission_received",
+                drone_id=self.drone_id,
+                mission_id=msg.mission_id,
+                waypoints=len(self._waypoints),
+            )
+        )
 
     def _map_status(self, msg: VehicleStatus) -> int:
         """Map PX4 arming_state / nav_state onto the DroneState status enum."""
@@ -161,6 +169,7 @@ class DroneAgent(Node):
                 self._engage_offboard()
                 self._arm()
                 self._phase = PHASE_TAKEOFF
+                self.get_logger().info(event_str("phase", drone_id=self.drone_id, phase="takeoff"))
             return
 
         if self._phase == PHASE_TAKEOFF:
@@ -170,6 +179,7 @@ class DroneAgent(Node):
             )
             if abs(-self._position_ned[2] - CRUISE_ALTITUDE) < REACHED_RADIUS:
                 self._phase = PHASE_ENROUTE
+                self.get_logger().info(event_str("phase", drone_id=self.drone_id, phase="enroute"))
             return
 
         if self._phase == PHASE_ENROUTE:
@@ -178,6 +188,9 @@ class DroneAgent(Node):
                 self._wp_index += 1
                 if self._wp_index >= len(self._waypoints):
                     self._phase = PHASE_LOITER
+                    self.get_logger().info(
+                        event_str("phase", drone_id=self.drone_id, phase="loiter")
+                    )
             return
 
         if self._phase == PHASE_LOITER:
