@@ -43,4 +43,17 @@ jobs:
             -v "${{ github.workspace }}":/home/ci/ws/src \
             -w /home/ci/ws/src/ros2_ws \
             archangel-dev:ci \
-            bash -c "source /opt/ros/jazzy/setup.bash && colcon build"
+            bash -c "source /opt/ros/jazzy/setup.bash && colcon build --merge-install"
+
+      - name: Integration tests
+        run: |
+          docker run --rm \
+            --user root \
+            -v "${{ github.workspace }}":/home/ci/ws/src \
+            -w /home/ci/ws/src/ros2_ws \
+            archangel-dev:ci \
+            bash -c "source /opt/ros/jazzy/setup.bash && \
+              colcon build --merge-install && \
+              source install/setup.bash && \
+              launch_test src/station/test/test_detection_integration.py"
+              

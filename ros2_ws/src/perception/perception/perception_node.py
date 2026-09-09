@@ -8,6 +8,7 @@ and confidence falls off toward the edge of that cone.
 import math
 
 import rclpy
+from archangel_common.fov import check_fov
 from archangel_common.logging import event_str
 from geometry_msgs.msg import PoseStamped
 from rclpy.node import Node
@@ -74,21 +75,10 @@ class Perception(Node):
         if self._drone_pos is None or self._intruder_pos is None:
             return
 
-        dx = self._intruder_pos[0] - self._drone_pos[0]
-        dy = self._intruder_pos[1] - self._drone_pos[1]
-        horizontal = math.hypot(dx, dy)
-
-        altitude = self._drone_pos[2]
-        if altitude <= 0.0:
-            return  # on/under the ground: nothing to see
-
-        # Ground radius of the downward cone at this altitude.
-        fov_radius = altitude * math.tan(self.fov_half_angle)
-        if horizontal > fov_radius:
-            return  # intruder outside the field of view
-
-        # Confidence falls off linearly from center (1.0) to the edge (0.0) of the FOV cone.
-        confidence = 1.0 - (horizontal / fov_radius) if fov_radius > 0.0 else 0.0
+        result = check_fov(self._drone_pos, self._intruder_pos, self.fov_half_angle)
+        if not result.in_view:
+            return
+        confidence = result.confidence
 
         # Throttle: cap the rate while a target stays in view, so continuous
         # visibility doesn't flood downstream. Once the intruder can move and
@@ -133,7 +123,8 @@ def main(args=None):
         pass
     finally:
         node.destroy_node()
-        rclpy.shutdown()
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == "__main__":
