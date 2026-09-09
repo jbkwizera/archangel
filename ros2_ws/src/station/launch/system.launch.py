@@ -1,10 +1,20 @@
 """Bring up the ROS-side stack against a running PX4/Gazebo simulation.
 
-Starts the uXRCE-DDS agent, spawns the intruder marker, bridges its pose,
-and runs drone_agent and station.
+Starts the uXRCE-DDS agent, spawns the intruder marker, bridges its ground-truth
+pose, and runs drone_agent, perception and station.
 
 PX4 SITL is launched separately and must be up first:
     PX4_GZ_WORLD=park make px4_sitl gz_x500
+
+Launch arguments (all optional):
+    drone_id                    Drine id shared by all nodes.       (default 0)
+    world                       Running Gazebo world to spawn into. (default park)
+    intruder_x/y/z              Intruder spawn position, meters.    (from intruder.yaml)
+    fov_half_angle_deg          Perception camera cone half-angle.  (default 30)
+    min_detection_intervals_s   Min seconds between detections.     (default 2.0)
+
+Example:
+    ros2 launch station system.launch.py drone_id:=0 fov_half_angle_deg:=45
 """
 
 import os
@@ -47,43 +57,11 @@ INTRUDER_SDF = (
 
 
 def generate_launch_description():
-    """Build the launch description for the agent, spawn, bridge, and nodes."""
-    sim_assets_share = get_package_share_directory("sim_assets")
-    config_path = os.path.join(sim_assets_share, "config", "intruder.yaml")
-    with open(config_path) as f:
-        defaults = yaml.safe_load(f)["intruder"]
-
+    """Build the full launch description for the ROS-side stack."""
     drone_id = LaunchConfiguration("drone_id")
     world = LaunchConfiguration("world")
 
-    args = [
-        DeclareLaunchArgument(
-            "drone_id",
-            default_value="0",
-            description="Drone id passed to both drone_agent and station.",
-        ),
-        DeclareLaunchArgument(
-            "world",
-            default_value="park",
-            description="Name of the running Gazebo world to spawn into.",
-        ),
-        DeclareLaunchArgument(
-            "intruder_x",
-            default_value=str(defaults["x"]),
-            description="Intruder X position (m)",
-        ),
-        DeclareLaunchArgument(
-            "intruder_y",
-            default_value=str(defaults["y"]),
-            description="Intruder Y position (m)",
-        ),
-        DeclareLaunchArgument(
-            "intruder_z",
-            default_value=str(defaults["z"]),
-            description="Intruder Z position (m)",
-        ),
-    ]
-
+    # --- Simulation bridge and world setup ---
     # uXRCE-DDS agent: the PX4 <-> ROS 2 bridge. Must be up before PX4
     # connects; starting it here means it is ready as the stack comes up.
     agent = ExecuteProcess(
@@ -119,12 +97,27 @@ def generate_launch_description():
         arguments=["/model/intruder/pose@geometry_msgs/msg/PoseStamped[gz.msgs.Pose"],
     )
 
+    # --- Application nodes ---
     drone_agent = Node(
         package="drone_agent",
         executable="agent",
         name="drone_agent",
         output="screen",
         parameters=[{"drone_id": drone_id}],
+    )
+
+    perception = Node(
+        package="perception",
+        executable="perception",
+        name="perception",
+        output="screen",
+        parameters=[
+            {
+                "drone_id": drone_id,
+                "fov_half_angle_deg": LaunchConfiguration("fov_half_angle_deg"),
+                "min_detection_interval_s": LaunchConfiguration("min_detection_interval_s"),
+            }
+        ],
     )
 
     station = Node(
@@ -135,14 +128,60 @@ def generate_launch_description():
         parameters=[{"drone_id": drone_id}],
     )
 
-    perception = Node(
-        package="perception",
-        executable="perception",
-        name="perception",
-        output="screen",
-        parameters=[{"drone_id": drone_id}],
+    return LaunchDescription(
+        [
+            *_declare_arguments(),
+            agent,
+            spawn_intruder,
+            pose_bridge,
+            drone_agent,
+            perception,
+            station,
+        ]
     )
 
-    return LaunchDescription(
-        [*args, agent, spawn_intruder, pose_bridge, drone_agent, station, perception]
-    )
+
+def _declare_arguments():
+    """Declare all launch arguments, reading intruder defaults from config."""
+    sim_assets_share = get_package_share_directory("sim_assets")
+    config_path = os.path.join(sim_assets_share, "config", "intruder.yaml")
+    with open(config_path) as f:
+        intruder = yaml.safe_load(f)["intruder"]
+
+    return [
+        DeclareLaunchArgument(
+            "drone_id",
+            default_value="0",
+            description="Drone id shared by all nodes.",
+        ),
+        DeclareLaunchArgument(
+            "world",
+            default_value="park",
+            description="Name of the running Gazebo world to spawn into.",
+        ),
+        DeclareLaunchArgument(
+            "intruder_x",
+            default_value=str(intruder["x"]),
+            description="Intruder X spawn position (m).",
+        ),
+        DeclareLaunchArgument(
+            "intruder_y",
+            default_value=str(intruder["y"]),
+            description="Intruder Y spawn position (m).",
+        ),
+        DeclareLaunchArgument(
+            "intruder_z",
+            default_value=str(intruder["z"]),
+            description="Intruder Z spawn position (m).",
+        ),
+        DeclareLaunchArgument(
+            "fov_half_angle_deg",
+            default_value="30.0",
+            description="Perception downward-camera cone half-angle (deg).",
+        ),
+        DeclareLaunchArgument(
+            "min_detection_interval_s",
+            default_value="2.0",
+            description="Minimum seconds between published detections.",
+        ),
+    ]
